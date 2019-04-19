@@ -50,7 +50,8 @@ passport.use(
                   google_id: profile._json.sub,
                   facebook_id: null,
                   google_profile_picture: profile._json.picture,
-                  facebook_profile_picture: null
+                  facebook_profile_picture: null,
+                  phone_number: null
                })
                   .save()
                   .then(newUser => {
@@ -111,7 +112,8 @@ passport.use(
                   google_id: null,
                   facebook_id: profile._json.id,
                   google_profile_picture: null,
-                  facebook_profile_picture: profile._json.picture.data.url
+                  facebook_profile_picture: profile._json.picture.data.url,
+                  phone_number: null
                })
                   .save()
                   .then(newUser => {
