@@ -1,27 +1,34 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const helmet = require('helmet')
-const bodyParser = require('body-parser')
-const morgan = require('morgan')
-const bluebird = require('bluebird')
+const express = require('express');
+const mongoose = require('mongoose');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
-const config = require('./config')
-const routes = require('./routes')
+const config = require('./config');
+const authRoutes = require('./routes/auth-routes');
 
-const app = express()
+const app = express();
 
-mongoose.Promise = bluebird
-mongoose.connect(config.mongo.url)
+//connect to db
+mongoose.connect(
+   config.mongo.url,
+   { useNewUrlParser: true },
 
-app.use(helmet())
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-app.use(morgan('tiny'))
+   () => {
+      console.log('connected to db');
+   }
+);
 
-app.use('/', routes)
+app.use(helmet());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(morgan('tiny'));
+
+//set up Auth Routes
+app.use('/auth', authRoutes);
 
 app.listen(config.server.port, () => {
-  console.log(`Magic happens on port ${config.server.port}`)
-})
+   console.log(`Magic happens on port ${config.server.port}`);
+});
 
-module.exports = app
+module.exports = app;
