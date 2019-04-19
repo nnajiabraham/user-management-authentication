@@ -1,6 +1,7 @@
 // @ts-nocheck
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
+const FacebookStrategy = require('passport-facebook');
 const keys = require('../keys');
 const { User } = require('../models/user-model');
 
@@ -14,6 +15,7 @@ passport.deserializeUser((id, done) => {
    });
 });
 
+//googleStrategy
 passport.use(
    new GoogleStrategy(
       {
@@ -29,21 +31,91 @@ passport.use(
          //check if user exist in db
          User.findOne({ email: profile._json.email }).then(currentUser => {
             if (currentUser) {
-               console.log('User is ', currentUser);
-               done(null, currentUser);
+               if (currentUser.google_id) {
+                  console.log('User is logged in with google');
+                  done(null, currentUser);
+               } else {
+                  currentUser.google_id = profile._json.sub;
+                  currentUser.google_profile_picture = profile._json.picture;
+                  currentUser.save().then(user => {
+                     console.log('updated user google id/profile');
+                     done(null, currentUser);
+                  });
+               }
             } else {
                new User({
-                  username: profile.displayName,
-                  first_name: profile.name.givenName,
-                  last_name: profile.name.familyName,
+                  first_name: profile._json.given_name,
+                  last_name: profile._json.family_name,
                   email: profile._json.email,
-                  google_id: profile.id,
+                  google_id: profile._json.sub,
                   facebook_id: null,
-                  profile_picture: profile._json.picture
+                  google_profile_picture: profile._json.picture,
+                  facebook_profile_picture: null
                })
                   .save()
                   .then(newUser => {
-                     console.log('new user created', newUser);
+                     console.log('new google user created');
+                     done(null, newUser);
+                  });
+            }
+         });
+      }
+   )
+);
+
+//facebookStrategy
+passport.use(
+   new FacebookStrategy(
+      {
+         clientID: keys.facebookLogin.appID,
+         clientSecret: keys.facebookLogin.appSecret,
+         callbackURL: '/auth/facebook/redirect',
+         profileFields: [
+            'id',
+            'displayName',
+            'picture',
+            'email',
+            'first_name',
+            'last_name'
+         ]
+      },
+      (accessToken, refreshToken, profile, done) => {
+         // console.log(profile._json);
+
+         // check if user exist in db
+         User.findOne({ email: profile._json.email }).then(currentUser => {
+            if (currentUser) {
+               console.log('User is logged in with facebook');
+               if (currentUser.facebook_id) {
+                  //update profile picture URL
+                  currentUser.facebook_profile_picture =
+                     profile._json.picture.data.url;
+                  currentUser.save().then(user => {
+                     console.log('updated user facebook profilepic');
+                     done(null, currentUser);
+                  });
+               } else {
+                  currentUser.facebook_id = profile._json.id;
+                  currentUser.facebook_profile_picture =
+                     profile._json.picture.data.url;
+                  currentUser.save().then(user => {
+                     console.log('updated user facebook id/profilepic');
+                     done(null, currentUser);
+                  });
+               }
+            } else {
+               new User({
+                  first_name: profile._json.first_name,
+                  last_name: profile._json.last_name,
+                  email: profile._json.email,
+                  google_id: null,
+                  facebook_id: profile._json.id,
+                  google_profile_picture: null,
+                  facebook_profile_picture: profile._json.picture.data.url
+               })
+                  .save()
+                  .then(newUser => {
+                     console.log('new facebook user created');
                      done(null, newUser);
                   });
             }
