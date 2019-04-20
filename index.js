@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cookieSession = require('cookie-session');
+var flash = require('connect-flash');
 const passport = require('passport');
 
 const keys = require('./keys');
@@ -19,6 +20,8 @@ app.use(
       keys: keys.session.cookieKey
    })
 );
+
+app.use(flash());
 
 //init passport
 app.use(passport.initialize());
