@@ -9,8 +9,7 @@ const passport = require('passport');
 
 const keys = require('./keys');
 const config = require('./config');
-const authRoutes = require('./routes/auth-routes');
-const profileRoutes = require('./routes/profile-routes');
+const routes = require('./routes/index');
 
 const app = express();
 
@@ -43,8 +42,7 @@ app.use(bodyParser.json());
 app.use(morgan('tiny'));
 
 //set up Auth Routes
-app.use('/auth', authRoutes);
-app.use('/profile', profileRoutes);
+app.use(routes);
 
 app.listen(config.server.port, () => {
    console.log(`Running on port ${config.server.port}`);

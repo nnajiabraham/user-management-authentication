@@ -4,6 +4,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const GoogleStrategy = require('passport-google-oauth20');
 const FacebookStrategy = require('passport-facebook');
+const jwt = require('jsonwebtoken');
 const keys = require('../keys');
 const { User } = require('../models/user-model');
 
@@ -28,13 +29,21 @@ passport.use(
                bcrpyt.compare(password, user.password, (err, isMatch) => {
                   if (err) throw err;
 
-                  if (isMatch) {
-                     return done(null, user, { message: 'success' });
-                  } else {
+                  if (!isMatch) {
                      return done(null, false, {
-                        message: 'Incorrect email or passwords'
+                        message: 'Incorrect email or password'
                      });
                   }
+                  const token = jwt.sign(
+                     {
+                        email: user.email,
+                        id: user._id.toString()
+                     },
+                     keys.session.cookieKey[0],
+                     { expiresIn: '1h' }
+                  );
+
+                  return done(null, user, { message: 'success' });
                });
             }
          })

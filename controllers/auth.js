@@ -45,22 +45,6 @@ exports.signup = (req, res, next) => {
             .catch(err => console.log(err));
       });
    });
-
-   // bcrypt
-   //    .hash(password, 12)
-   //    .then(hashedPwd => {
-   //       const user = new User({
-   //          first_name,
-   //          last_name,
-   //          email,
-   //          password: hashedPwd,
-   //          phone_number
-   //       });
-   //       return user.save();
-   //    })
-   //    .then(result => {
-   //       res.status(201).json({ message: 'User created!', userId: result._id });
-   //    });
 };
 
 exports.signupValidator = [
