@@ -1,0 +1,22 @@
+{
+    "extends": [
+        "prettier",
+        "airbnb/base"
+    
+    ],
+    "rules": {
+        "prettier/prettier": [
+            "error",
+            {
+                "trailingComma": "all",
+                "singleQuote": true
+            }
+        ],
+        "import/no-namespace": [
+            "error"
+        ]
+    },
+    "plugins": [
+        "prettier"
+    ]
+}
